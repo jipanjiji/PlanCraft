@@ -3,7 +3,7 @@
 // ============================================================
 
 import { NextRequest } from "next/server";
-import { adminDb } from "@/lib/firebase/admin";
+import { getFirestoreDoc } from "@/lib/firebase/admin-rest";
 import { compileProjectMarkdown } from "@/lib/utils/markdown-compiler";
 import type { Project } from "@/lib/types";
 
@@ -29,15 +29,12 @@ export async function GET(
       return new Response("Missing access token", { status: 401 });
     }
 
-    // Fetch project from Firestore using Firebase Admin SDK
-    const docRef = adminDb.collection("projects").doc(id);
-    const docSnap = await docRef.get();
+    // Fetch project from Firestore using secure REST API client
+    const projectData = await getFirestoreDoc("projects", id) as Project | null;
 
-    if (!docSnap.exists) {
+    if (!projectData) {
       return new Response("Project not found", { status: 404 });
     }
-
-    const projectData = docSnap.data() as Project;
 
     // Verify token matches project's accessToken
     if (projectData.accessToken !== token) {
@@ -45,10 +42,9 @@ export async function GET(
     }
 
     // Compile specification to Markdown
-    const markdownSpec = compileProjectMarkdown(projectData);
+    const markdown = compileProjectMarkdown(projectData);
 
-    // Return as plain text Markdown file
-    return new Response(markdownSpec, {
+    return new Response(markdown, {
       status: 200,
       headers: {
         "Content-Type": "text/markdown; charset=utf-8",
@@ -56,7 +52,8 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("Failed to fetch project spec:", error);
-    return new Response("Internal Server Error", { status: 500 });
+    console.error("❌ Error fetching project spec:", error);
+    const errorMessage = error instanceof Error ? error.message : "Internal server error";
+    return new Response(errorMessage, { status: 500 });
   }
 }
