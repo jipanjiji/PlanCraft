@@ -1,5 +1,6 @@
 // ============================================================
-// PlanCraft AI — Step 4: PRD Editor with AI Chat (Spacious & Modern)
+// PlanCraft AI — Step 4: PRD Editor with AI Chat (Indonesian)
+// Includes TOC Sidebar and Version History Controls
 // ============================================================
 
 "use client";
@@ -11,6 +12,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   ArrowRight,
   ArrowLeft,
   Send,
@@ -21,14 +28,20 @@ import {
   MessageSquare,
   Loader2,
   BookOpen,
+  History,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { ChatMessage } from "@/lib/types";
+import type { ChatMessage, PrdVersion } from "@/lib/types";
+import { TocSidebar, mdHeadingComponents } from "@/components/wizard/TocSidebar";
+import { formatRelativeTime } from "@/lib/utils/helpers";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 interface PrdEditorStepProps {
   prdContent: string;
   onPrdChange: (content: string) => void;
+  prdVersions?: PrdVersion[];
+  onRestoreVersion?: (content: string) => void;
   chatMessages: ChatMessage[];
   onChatSubmit: (instruction: string) => void;
   onNext: () => void;
@@ -40,6 +53,8 @@ interface PrdEditorStepProps {
 export function PrdEditorStep({
   prdContent,
   onPrdChange,
+  prdVersions = [],
+  onRestoreVersion,
   chatMessages,
   onChatSubmit,
   onNext,
@@ -53,6 +68,14 @@ export function PrdEditorStep({
   const chatEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Restore confirmations
+  const [isRestoreOpen, setIsRestoreOpen] = useState(false);
+  const [pendingRestoreContent, setPendingRestoreContent] = useState("");
+
+  // References for TOC scrolling sync
+  const tabPreviewScrollRef = useRef<HTMLDivElement>(null);
+  const splitPreviewScrollRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
@@ -63,23 +86,69 @@ export function PrdEditorStep({
     setChatInput("");
   };
 
+  const handleRestore = (ver: PrdVersion) => {
+    if (!onRestoreVersion) return;
+    setPendingRestoreContent(ver.prdContent);
+    setIsRestoreOpen(true);
+  };
+
+  const handleConfirmRestore = () => {
+    if (onRestoreVersion) {
+      onRestoreVersion(pendingRestoreContent);
+    }
+  };
+
+  const proseClasses = "prose prose-invert prose-sm max-w-none prose-headings:text-foreground prose-h1:text-2xl prose-h1:font-bold prose-h1:pb-2 prose-h1:border-b prose-h1:border-border prose-h2:text-lg prose-h2:font-semibold prose-h2:mt-6 prose-h2:text-zinc-200 prose-p:text-zinc-400 prose-p:leading-relaxed prose-p:my-3 prose-strong:text-foreground prose-code:text-primary prose-code:bg-primary/10 prose-code:rounded prose-code:px-1.5 prose-code:py-0.5 prose-code:font-mono prose-pre:bg-secondary prose-pre:border prose-pre:border-border prose-ul:list-disc prose-ul:pl-5 prose-li:my-1";
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-foreground tracking-tight">Editor PRD & AI</h2>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
             Ubah spesifikasi secara langsung atau instruksikan AI Assistant untuk merevisi dokumen Anda.
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {/* Version History Dropdown */}
+          {prdVersions.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className="gap-1.5 border border-border text-xs rounded-lg px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-muted active:scale-[0.98] cursor-pointer inline-flex items-center"
+              >
+                <History className="h-3.5 w-3.5" />
+                Riwayat Versi ({prdVersions.length})
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64 bg-popover border-border max-h-72 overflow-y-auto">
+                <div className="px-3 py-2 border-b border-border">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pilih Versi untuk Dipulihkan</p>
+                </div>
+                {prdVersions
+                  .slice()
+                  .reverse()
+                  .map((ver) => (
+                    <DropdownMenuItem
+                      key={ver.id}
+                      onClick={() => handleRestore(ver)}
+                      className="flex flex-col items-start gap-0.5 p-2.5 cursor-pointer text-xs transition-colors hover:bg-primary/10 hover:text-primary"
+                    >
+                      <span className="font-semibold text-foreground">{ver.label}</span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {formatRelativeTime(new Date(ver.createdAt))} • oleh {ver.createdBy === "ai" ? "AI" : "User"}
+                      </span>
+                    </DropdownMenuItem>
+                  ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowChat(!showChat)}
             className={cn(
-              "gap-2 border-border text-xs rounded-lg px-4 py-2 transition-all",
+              "gap-2 border-border text-xs rounded-lg px-4 py-2 transition-all active:scale-[0.98]",
               showChat
                 ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
                 : "text-muted-foreground hover:text-foreground"
@@ -115,12 +184,12 @@ export function PrdEditorStep({
                   ref={textareaRef}
                   value={prdContent}
                   onChange={(e) => onPrdChange(e.target.value)}
-                  className="min-h-[520px] flex-1 w-full rounded-xl border border-border bg-[#0A0A0A] p-5 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none leading-relaxed shadow-inner"
+                  className="min-h-[520px] flex-1 w-full rounded-xl border border-border bg-card p-5 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none leading-relaxed"
                   placeholder="Isi konten PRD Anda akan muncul di sini..."
                   spellCheck={false}
                 />
                 {isStreaming && (
-                  <div className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-2 border border-primary/20 animate-pulse-glow">
+                  <div className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-2 border border-primary/20">
                     <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
                     <span className="text-xs text-primary font-semibold">AI sedang menulis...</span>
                   </div>
@@ -128,22 +197,28 @@ export function PrdEditorStep({
               </TabsContent>
 
               <TabsContent value="preview" className="mt-0 flex-1 flex flex-col">
-                <ScrollArea className="min-h-[520px] flex-1 rounded-xl border border-border bg-[#070707] p-8 shadow-inner">
-                  <div className="prose prose-invert prose-sm max-w-none prose-headings:text-foreground prose-h1:text-2xl prose-h1:font-bold prose-h1:pb-2 prose-h1:border-b prose-h1:border-zinc-800 prose-h2:text-lg prose-h2:font-semibold prose-h2:mt-6 prose-h2:text-zinc-200 prose-p:text-zinc-400 prose-p:leading-relaxed prose-p:my-3 prose-strong:text-foreground prose-code:text-primary prose-code:bg-primary/10 prose-code:rounded prose-code:px-1.5 prose-code:py-0.5 prose-code:font-mono prose-pre:bg-card prose-pre:border prose-pre:border-border prose-ul:list-disc prose-ul:pl-5 prose-li:my-1">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {prdContent || "*Belum ada konten. Ketikkan ide Anda di Editor Teks atau biarkan AI menuliskannya.*"}
-                    </ReactMarkdown>
-                  </div>
-                </ScrollArea>
+                <div className="flex gap-6 items-stretch min-h-[520px]">
+                  {/* TOC Sidebar */}
+                  <TocSidebar markdown={prdContent} containerRef={tabPreviewScrollRef} />
+                  
+                  {/* Preview Area */}
+                  <ScrollArea ref={tabPreviewScrollRef} className="flex-1 rounded-xl border border-border bg-card p-8">
+                    <div className={proseClasses}>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdHeadingComponents}>
+                        {prdContent || "*Belum ada konten. Ketikkan ide Anda di Editor Teks atau biarkan AI menuliskannya.*"}
+                      </ReactMarkdown>
+                    </div>
+                  </ScrollArea>
+                </div>
               </TabsContent>
             </Tabs>
           ) : (
-            /* Beautiful Side-by-Side Split Pane (Editor + Preview) when chat is closed */
+            /* Side-by-Side Split Pane (Editor + Preview) when chat is closed */
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
               
               {/* Left Pane: Rich Textarea */}
               <div className="flex flex-col space-y-3">
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">
+                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground px-1">
                   <Edit3 className="h-3.5 w-3.5" />
                   <span>Editor Teks Markdown</span>
                 </div>
@@ -152,12 +227,12 @@ export function PrdEditorStep({
                     ref={textareaRef}
                     value={prdContent}
                     onChange={(e) => onPrdChange(e.target.value)}
-                    className="min-h-[550px] flex-1 w-full rounded-xl border border-border bg-[#0A0A0A] p-5 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none leading-relaxed shadow-inner"
+                    className="min-h-[550px] flex-1 w-full rounded-xl border border-border bg-card p-5 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none leading-relaxed"
                     placeholder="Isi konten PRD Anda akan muncul di sini..."
                     spellCheck={false}
                   />
                   {isStreaming && (
-                    <div className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-2 border border-primary/20 animate-pulse-glow">
+                    <div className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-2 border border-primary/20">
                       <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
                       <span className="text-xs text-primary font-semibold">AI sedang menulis...</span>
                     </div>
@@ -165,15 +240,15 @@ export function PrdEditorStep({
                 </div>
               </div>
 
-              {/* Right Pane: Live Beautifully-Rendered Document */}
+              {/* Right Pane: Live Rendered Document */}
               <div className="flex flex-col space-y-3">
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">
+                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground px-1">
                   <BookOpen className="h-3.5 w-3.5" />
                   <span>Pratinjau Dokumen PRD</span>
                 </div>
-                <ScrollArea className="min-h-[550px] flex-1 rounded-xl border border-border bg-[#070707] p-8 shadow-inner">
-                  <div className="prose prose-invert prose-sm max-w-none prose-headings:text-foreground prose-h1:text-2xl prose-h1:font-bold prose-h1:pb-2 prose-h1:border-b prose-h1:border-zinc-800 prose-h2:text-lg prose-h2:font-semibold prose-h2:mt-6 prose-h2:text-zinc-200 prose-p:text-zinc-400 prose-p:leading-relaxed prose-p:my-3 prose-strong:text-foreground prose-code:text-primary prose-code:bg-primary/10 prose-code:rounded prose-code:px-1.5 prose-code:py-0.5 prose-code:font-mono prose-pre:bg-card prose-pre:border prose-pre:border-border prose-ul:list-disc prose-ul:pl-5 prose-li:my-1">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                <ScrollArea ref={splitPreviewScrollRef} className="min-h-[550px] flex-1 rounded-xl border border-border bg-card p-8">
+                  <div className={proseClasses}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdHeadingComponents}>
                       {prdContent || "*Belum ada konten. Ketikkan ide Anda di Editor Teks atau biarkan AI menuliskannya.*"}
                     </ReactMarkdown>
                   </div>
@@ -189,9 +264,9 @@ export function PrdEditorStep({
           <div className="w-full lg:w-2/5 animate-slide-in-right flex flex-col">
             <div className="flex h-[585px] flex-col rounded-xl border border-border bg-card shadow-lg">
               {/* Chat Header */}
-              <div className="flex items-center gap-2 border-b border-border px-4 py-3 bg-[#0A0A0A] rounded-t-xl">
-                <Bot className="h-4.5 w-4.5 text-primary" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <div className="flex items-center gap-2 border-b border-border px-4 py-3 bg-secondary rounded-t-xl">
+                <Bot className="h-4 w-4 text-primary" />
+                <span className="text-xs font-medium text-muted-foreground">
                   Asisten AI
                 </span>
               </div>
@@ -215,7 +290,7 @@ export function PrdEditorStep({
                             key={i}
                             type="button"
                             onClick={() => setChatInput(suggestion)}
-                            className="block w-full rounded-lg border border-border bg-[#0A0A0A] px-3 py-2 text-left text-xs text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
+                            className="block w-full rounded-lg border border-border bg-secondary/50 px-3 py-2 text-left text-xs text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground active:scale-[0.98]"
                           >
                             &ldquo;{suggestion}&rdquo;
                           </button>
@@ -239,7 +314,7 @@ export function PrdEditorStep({
                           "max-w-[85%] rounded-xl px-3.5 py-2.5 text-xs leading-relaxed",
                           msg.role === "user"
                             ? "bg-primary text-primary-foreground font-medium"
-                            : "bg-[#0A0A0A] text-foreground border border-border"
+                            : "bg-secondary text-foreground border border-border"
                         )}
                       >
                         {msg.content}
@@ -257,10 +332,10 @@ export function PrdEditorStep({
                       <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10">
                         <Bot className="h-3.5 w-3.5 text-primary" />
                       </div>
-                      <div className="flex gap-1.5 rounded-xl bg-[#0A0A0A] border border-border px-4 py-3 items-center">
-                        <div className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0s" }} />
-                        <div className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0.2s" }} />
-                        <div className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0.4s" }} />
+                      <div className="flex gap-1.5 rounded-xl bg-secondary border border-border px-4 py-3 items-center">
+                        <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                        <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse [animation-delay:150ms]" />
+                        <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse [animation-delay:300ms]" />
                       </div>
                     </div>
                   )}
@@ -270,7 +345,7 @@ export function PrdEditorStep({
               </ScrollArea>
 
               {/* Chat Input */}
-              <div className="border-t border-border p-3 bg-[#0A0A0A] rounded-b-xl">
+              <div className="border-t border-border p-3 bg-secondary rounded-b-xl">
                 <div className="flex gap-2">
                   <Textarea
                     value={chatInput}
@@ -288,7 +363,7 @@ export function PrdEditorStep({
                     size="icon"
                     onClick={handleChatSubmit}
                     disabled={!chatInput.trim() || isChatLoading}
-                    className="shrink-0 bg-primary hover:bg-primary/95 rounded-lg h-9 w-9"
+                    className="shrink-0 bg-primary hover:bg-primary/90 rounded-lg h-9 w-9 active:scale-[0.98]"
                   >
                     <Send className="h-3.5 w-3.5" />
                   </Button>
@@ -304,7 +379,7 @@ export function PrdEditorStep({
         <Button
           variant="outline"
           onClick={onBack}
-          className="gap-2 border-border text-muted-foreground hover:text-foreground rounded-lg"
+          className="gap-2 border-border text-muted-foreground hover:text-foreground rounded-lg active:scale-[0.98]"
         >
           <ArrowLeft className="h-4 w-4" />
           Kembali
@@ -313,12 +388,23 @@ export function PrdEditorStep({
           onClick={onNext}
           disabled={!prdContent.trim() || isStreaming}
           size="lg"
-          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/95 rounded-lg"
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg active:scale-[0.98]"
         >
           Buat Daftar Tugas
           <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
+
+      {/* Confirmations */}
+      <ConfirmDialog
+        isOpen={isRestoreOpen}
+        onOpenChange={setIsRestoreOpen}
+        title="Pulihkan Versi PRD"
+        description="Apakah Anda yakin ingin memulihkan versi ini menjadi versi aktif saat ini? Perubahan manual Anda saat ini akan dicadangkan secara otomatis."
+        confirmLabel="Pulihkan"
+        onConfirm={handleConfirmRestore}
+        variant="success"
+      />
     </div>
   );
 }

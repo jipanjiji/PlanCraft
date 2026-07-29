@@ -5,11 +5,10 @@
 @tailwind utilities;
 
 /* ============================================================
-   PlanCraft AI — Custom Design System
-   Theme: Dark Mode (Vercel / Linear inspired)
+   PlanCraft AI — Design System
+   Theme: Dark Mode (Zinc-based, Emerald accent)
+   Font: Geist + Geist Mono (loaded via next/font)
    ============================================================ */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @layer utilities {
   .text-balance {
@@ -25,57 +24,57 @@
 
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 98%;
+    --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 98%;
+    --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 217 91% 60%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 160 84% 39%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 7%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 10%;
-    --muted-foreground: 240 4% 65%;
-    --accent: 217 91% 60%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 160 84% 39%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84% 60%;
-    --border: 240 4% 16%;
-    --input: 240 4% 16%;
-    --ring: 217 91% 60%;
-    --radius: 0.625rem;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 160 84% 39%;
+    --radius: 0.75rem;
     --success: 142 71% 45%;
     --warning: 38 92% 50%;
   }
 
   .dark {
-    --background: 0 0% 0%;
+    --background: 240 6% 6%;
     --foreground: 0 0% 98%;
-    --card: 0 0% 7%;
+    --card: 240 5% 8.5%;
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 7%;
+    --popover: 240 5% 10%;
     --popover-foreground: 0 0% 98%;
-    --primary: 217 91% 60%;
+    --primary: 160 84% 39%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 4%;
+    --secondary: 240 4% 14%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 10%;
-    --muted-foreground: 240 4% 65%;
-    --accent: 217 91% 60%;
+    --muted: 240 4% 14%;
+    --muted-foreground: 240 5% 57%;
+    --accent: 160 84% 39%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84% 60%;
     --border: 240 4% 16%;
     --input: 240 4% 16%;
-    --ring: 217 91% 60%;
+    --ring: 160 84% 39%;
     --success: 142 71% 45%;
     --warning: 38 92% 50%;
-    --sidebar: 0 0% 4%;
+    --sidebar: 240 6% 5%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary: 160 84% 39%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent: 240 4% 14%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 4% 16%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-ring: 160 84% 39%;
   }
 
   * {
@@ -84,7 +83,6 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
   }
 
   html {
@@ -105,24 +103,24 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(240 4% 16%);
+  background: hsl(var(--border));
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(240 4% 25%);
+  background: hsl(var(--muted-foreground) / 0.4);
 }
 
 /* ============================================================
    Selection Color
    ============================================================ */
 ::selection {
-  background: hsl(217 91% 60% / 0.3);
-  color: #fafafa;
+  background: hsl(var(--primary) / 0.3);
+  color: hsl(var(--foreground));
 }
 
 /* ============================================================
-   Smooth Animations
+   Animations (reduced-motion safe)
    ============================================================ */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
@@ -130,7 +128,7 @@
 }
 
 @keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.95); }
+  from { opacity: 0; transform: scale(0.97); }
   to { opacity: 1; transform: scale(1); }
 }
 
@@ -149,14 +147,14 @@
   100% { background-position: 200% 0; }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 hsl(217 91% 60% / 0.4); }
-  50% { box-shadow: 0 0 0 8px hsl(217 91% 60% / 0); }
-}
-
 @keyframes typing-dot {
   0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
   30% { opacity: 1; transform: translateY(-4px); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .animate-fade-in {
@@ -175,88 +173,72 @@
   animation: slideInLeft 0.4s ease-out forwards;
 }
 
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+/* Stagger pattern using CSS custom property */
+.stagger-item {
+  opacity: 0;
+  animation: fadeIn 0.4s ease-out forwards;
+  animation-delay: calc(var(--stagger, 0) * 60ms);
 }
 
 /* ============================================================
-   Stagger Animation Delays
+   Reduced Motion: disable all custom animations
    ============================================================ */
-.stagger-1 { animation-delay: 0.05s; opacity: 0; }
-.stagger-2 { animation-delay: 0.1s; opacity: 0; }
-.stagger-3 { animation-delay: 0.15s; opacity: 0; }
-.stagger-4 { animation-delay: 0.2s; opacity: 0; }
-.stagger-5 { animation-delay: 0.25s; opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-fade-in-scale,
+  .animate-slide-in-right,
+  .animate-slide-in-left,
+  .stagger-item {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
 
 /* ============================================================
    Markdown Editor Overrides (Dark Theme)
    ============================================================ */
 .w-md-editor {
-  background-color: hsl(0 0% 4%) !important;
-  border-color: hsl(240 4% 16%) !important;
-  color: #fafafa !important;
+  background-color: hsl(var(--card)) !important;
+  border-color: hsl(var(--border)) !important;
+  color: hsl(var(--foreground)) !important;
 }
 
 .w-md-editor-toolbar {
-  background-color: hsl(0 0% 7%) !important;
-  border-color: hsl(240 4% 16%) !important;
+  background-color: hsl(var(--secondary)) !important;
+  border-color: hsl(var(--border)) !important;
 }
 
 .w-md-editor-content {
-  background-color: hsl(0 0% 4%) !important;
+  background-color: hsl(var(--card)) !important;
 }
 
 .w-md-editor-preview {
-  background-color: hsl(0 0% 4%) !important;
+  background-color: hsl(var(--card)) !important;
 }
 
 .wmde-markdown {
   background-color: transparent !important;
-  color: #fafafa !important;
-  font-family: 'Inter', sans-serif !important;
+  color: hsl(var(--foreground)) !important;
 }
 
 .wmde-markdown code {
-  font-family: 'JetBrains Mono', monospace !important;
+  font-family: var(--font-mono), monospace !important;
 }
 
 /* ============================================================
-   Glass Effect Utility
+   Glass Effect Utility (web frosted-glass approximation)
    ============================================================ */
 .glass {
-  background: hsl(0 0% 7% / 0.8);
+  background: hsl(var(--card) / 0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
-/* ============================================================
-   Gradient Text Utility
-   ============================================================ */
-.gradient-text {
-  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ============================================================
-   Glow Border Utility
-   ============================================================ */
-.glow-border {
-  position: relative;
-}
-
-.glow-border::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  background: linear-gradient(135deg, hsl(217 91% 60% / 0.3), hsl(271 91% 65% / 0.1), transparent);
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.glow-border:hover::before {
-  opacity: 1;
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: hsl(var(--card) / 0.96);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }

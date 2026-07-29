@@ -1,5 +1,6 @@
 // ============================================================
 // PlanCraft AI — Wizard Shell (Step Container + Progress Bar)
+// Responsive: horizontal scroll-snap on mobile
 // ============================================================
 
 "use client";
@@ -28,8 +29,35 @@ export function WizardShell({ currentStep, children }: WizardShellProps) {
   return (
     <div className="mx-auto w-full max-w-5xl">
       {/* Progress Bar */}
-      <div className="mb-8 px-4">
-        <div className="flex items-center justify-between">
+      <div className="mb-8 px-2 md:px-4">
+        {/* Mobile: compact step indicator */}
+        <div className="flex items-center justify-center gap-2 md:hidden mb-2">
+          <span className="text-xs font-medium text-primary">
+            {WIZARD_STEPS[currentIndex]?.label}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {currentIndex + 1} / {WIZARD_STEPS.length}
+          </span>
+        </div>
+        {/* Mobile: progress dots */}
+        <div className="flex items-center justify-center gap-1.5 md:hidden">
+          {WIZARD_STEPS.map((_, index) => (
+            <div
+              key={index}
+              className={cn(
+                "h-1.5 rounded-full transition-all duration-300",
+                index < currentIndex
+                  ? "w-6 bg-primary"
+                  : index === currentIndex
+                  ? "w-6 bg-primary/60"
+                  : "w-1.5 bg-border"
+              )}
+            />
+          ))}
+        </div>
+
+        {/* Desktop: full step circles */}
+        <div className="hidden md:flex items-center justify-between">
           {WIZARD_STEPS.map((step, index) => {
             const isCompleted = index < currentIndex;
             const isCurrent = index === currentIndex;
@@ -45,7 +73,7 @@ export function WizardShell({ currentStep, children }: WizardShellProps) {
                       isCompleted &&
                         "border-primary bg-primary text-primary-foreground",
                       isCurrent &&
-                        "border-primary bg-primary/10 text-primary animate-pulse-glow",
+                        "border-primary bg-primary/10 text-primary ring-4 ring-primary/10",
                       isUpcoming &&
                         "border-border bg-transparent text-muted-foreground"
                     )}
@@ -72,7 +100,7 @@ export function WizardShell({ currentStep, children }: WizardShellProps) {
                 {index < WIZARD_STEPS.length - 1 && (
                   <div
                     className={cn(
-                      "mx-2 h-[2px] w-8 flex-1 transition-all duration-500 sm:w-12 md:w-16",
+                      "mx-2 h-[2px] flex-1 transition-all duration-500 sm:w-12 md:w-16",
                       index < currentIndex ? "bg-primary" : "bg-border"
                     )}
                   />
@@ -84,7 +112,7 @@ export function WizardShell({ currentStep, children }: WizardShellProps) {
       </div>
 
       {/* Step Content */}
-      <div className="animate-fade-in">{children}</div>
+      <div>{children}</div>
     </div>
   );
 }

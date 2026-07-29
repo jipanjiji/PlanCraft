@@ -43,7 +43,7 @@ export function ProjectCard({
 
   return (
     <Card
-      className="group cursor-pointer border-border bg-card/50 transition-all duration-200 hover:border-primary/20 hover:bg-card glow-border"
+      className="group cursor-pointer border-border bg-card/50 transition-all duration-200 hover:border-primary/30 hover:bg-card active:scale-[0.98] rounded-xl"
       onClick={() => onOpen(project.id)}
     >
       <CardContent className="p-5">
@@ -72,7 +72,7 @@ export function ProjectCard({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="bg-[#121212] border-border"
+                className="bg-popover border-border"
               >
                 <DropdownMenuItem
                   onClick={() => onOpen(project.id)}
@@ -109,7 +109,7 @@ export function ProjectCard({
         </div>
 
         {/* Description */}
-        <p className="mt-3 text-xs text-muted-foreground line-clamp-2">
+        <p className="mt-3 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
           {truncateText(project.rawIdea || "Tidak ada deskripsi", 120)}
         </p>
 

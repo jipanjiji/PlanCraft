@@ -1,5 +1,6 @@
 // ============================================================
 // PlanCraft AI — Header Bar (Indonesian)
+// Includes mobile hamburger menu for sidebar toggle
 // ============================================================
 
 "use client";
@@ -13,16 +14,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Sparkles } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 
-export function Header() {
+interface HeaderProps {
+  onMenuToggle?: () => void;
+}
+
+export function Header({ onMenuToggle }: HeaderProps) {
   const { user, signOut } = useAuth();
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-[#0A0A0A]/80 px-6 backdrop-blur-xl">
-      {/* Left: Breadcrumb area */}
-      <div className="flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-primary md:hidden" />
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 md:px-6 backdrop-blur-xl">
+      {/* Left: Mobile hamburger + greeting */}
+      <div className="flex items-center gap-3">
+        {/* Mobile menu button */}
+        <button
+          onClick={onMenuToggle}
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:scale-[0.98] md:hidden"
+          aria-label="Buka menu navigasi"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
         <span className="text-sm text-muted-foreground hidden md:inline">
           Selamat datang kembali,
         </span>
@@ -49,7 +61,7 @@ export function Header() {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="w-56 bg-[#121212] border-border"
+            className="w-56 bg-popover border-border"
           >
             <div className="px-3 py-2">
               <p className="text-sm font-medium text-foreground">

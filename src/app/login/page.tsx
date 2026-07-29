@@ -22,25 +22,24 @@ export default function LoginPage() {
   }, [user, loading, router]);
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-background overflow-hidden">
-      {/* Background Gradient Effects */}
+    <div className="relative flex min-h-[100dvh] items-center justify-center bg-background overflow-hidden">
+      {/* Background Ambient Effects (emerald-tinted, not AI-purple) */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary/5 blur-[100px]" />
-        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-purple-500/5 blur-[100px]" />
-        <div className="absolute top-1/2 left-1/2 h-60 w-60 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/3 blur-[80px]" />
+        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-primary/3 blur-[100px]" />
       </div>
 
-      {/* Grid Pattern */}
+      {/* Subtle Grid Pattern */}
       <div
-        className="absolute inset-0 opacity-[0.02]"
+        className="absolute inset-0 opacity-[0.015]"
         style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(hsl(var(--foreground) / 0.08) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground) / 0.08) 1px, transparent 1px)`,
           backgroundSize: "64px 64px",
         }}
       />
 
       <div className="relative z-10 mx-auto w-full max-w-md px-4 animate-fade-in-scale">
-        <Card className="border-border bg-card/85 backdrop-blur-xl rounded-xl shadow-lg">
+        <Card className="border-border bg-card/90 backdrop-blur-xl rounded-xl shadow-lg">
           <CardContent className="p-8">
             {/* Logo */}
             <div className="mb-8 flex flex-col items-center text-center">
@@ -65,7 +64,8 @@ export default function LoginPage() {
               ].map((feature, i) => (
                 <div
                   key={i}
-                  className={`flex items-center gap-3 stagger-${i + 1} animate-fade-in`}
+                  className="stagger-item flex items-center gap-3"
+                  style={{ "--stagger": i } as React.CSSProperties}
                 >
                   <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10">
                     <div className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -82,10 +82,10 @@ export default function LoginPage() {
               onClick={signIn}
               disabled={loading}
               size="lg"
-              className="w-full gap-3 bg-white text-black hover:bg-gray-100 font-medium h-12 rounded-lg"
+              className="w-full gap-3 bg-white text-zinc-900 hover:bg-zinc-100 font-medium h-12 rounded-lg active:scale-[0.98] transition-all"
             >
               {loading ? (
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-400 border-t-gray-700" />
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-400 border-t-zinc-700" />
               ) : (
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                   <path

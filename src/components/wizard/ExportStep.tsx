@@ -4,7 +4,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -27,6 +27,7 @@ import {
 } from "@/lib/utils/markdown-compiler";
 import { slugify } from "@/lib/utils/helpers";
 import type { Project } from "@/lib/types";
+import { TocSidebar, mdHeadingComponents } from "@/components/wizard/TocSidebar";
 
 interface ExportStepProps {
   project: Project;
@@ -38,6 +39,7 @@ export function ExportStep({ project, onBack, onGoToDashboard }: ExportStepProps
   const [copiedMarkdown, setCopiedMarkdown] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
+  const previewScrollRef = useRef<HTMLDivElement>(null);
 
   const markdownContent = compileProjectMarkdown(project);
   const filename = `${slugify(project.title || "project-spec")}.md`;
@@ -56,13 +58,7 @@ export function ExportStep({ project, onBack, onGoToDashboard }: ExportStepProps
 
   const handleCopyPrompt = async () => {
     const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-    const promptString = `Bantu saya membangun aplikasi ini. Unduh spesifikasi lengkap proyek (PRD & Daftar Tugas) dengan menjalankan perintah curl berikut di terminal Anda:
-
-\`\`\`bash
-curl -s "${origin}/api/project/${project.id}/spec?token=${project.accessToken || ""}" -o project-spec.md
-\`\`\`
-
-Setelah file project-spec.md terunduh, baca seluruh isinya dan ikuti semua persyaratan serta daftar tugas pengembangan yang didefinisikan di dalamnya.`;
+    const promptString = `Bantu saya membangun aplikasi ini. Silakan baca spesifikasi lengkap proyek (PRD & Daftar Tugas) dengan mengakses data dari perintah curl berikut:\n\n\`\`\`bash\ncurl -s "${origin}/api/project/${project.id}/spec?token=${project.accessToken || ""}"\n\`\`\`\n\nBaca seluruh spesifikasi produk tersebut dan ikuti semua persyaratan serta daftar tugas pengembangan yang didefinisikan di dalamnya.`;
 
     await copyToClipboard(promptString);
     setCopiedPrompt(true);
@@ -76,10 +72,10 @@ Setelah file project-spec.md terunduh, baca seluruh isinya dan ikuti semua persy
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
           <Sparkles className="h-7 w-7 text-emerald-400" />
         </div>
-        <h2 className="text-2xl font-bold text-foreground">
-          Spesifikasi Proyek Anda Sudah Siap! 🎉
+        <h2 className="text-2xl font-bold text-foreground tracking-tight">
+          Spesifikasi Proyek Anda Sudah Siap
         </h2>
-        <p className="mt-2 text-sm text-muted-foreground max-w-lg mx-auto">
+        <p className="mt-2 text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
           Unduh file spesifikasi Markdown terpadu atau langsung salin Prompt AI untuk asisten coding Anda (Cursor, Claude, dll).
         </p>
       </div>
@@ -90,7 +86,7 @@ Setelah file project-spec.md terunduh, baca seluruh isinya dan ikuti semua persy
         <Button
           onClick={handleDownload}
           size="lg"
-          className={`gap-2 transition-all duration-300 ${
+          className={`gap-2 transition-all duration-300 active:scale-[0.98] ${
             downloaded
               ? "bg-emerald-600 hover:bg-emerald-600"
               : "bg-primary hover:bg-primary/90"
@@ -114,7 +110,7 @@ Setelah file project-spec.md terunduh, baca seluruh isinya dan ikuti semua persy
           variant="outline"
           size="lg"
           onClick={handleCopyPrompt}
-          className={`gap-2 border-amber-500/30 text-amber-400 hover:bg-amber-500/5 transition-all duration-300 ${
+          className={`gap-2 border-amber-500/30 text-amber-400 hover:bg-amber-500/5 transition-all duration-300 active:scale-[0.98] ${
             copiedPrompt ? "text-emerald-400 border-emerald-500/30" : ""
           }`}
         >
@@ -136,7 +132,7 @@ Setelah file project-spec.md terunduh, baca seluruh isinya dan ikuti semua persy
           variant="outline"
           size="lg"
           onClick={handleCopyMarkdown}
-          className={`gap-2 border-border transition-all duration-300 ${
+          className={`gap-2 border-border transition-all duration-300 active:scale-[0.98] ${
             copiedMarkdown ? "text-emerald-400 border-emerald-500/30" : ""
           }`}
         >
@@ -155,7 +151,7 @@ Setelah file project-spec.md terunduh, baca seluruh isinya dan ikuti semua persy
       </div>
 
       {/* File Info */}
-      <Card className="border-border bg-card mx-auto max-w-md">
+      <Card className="border-border bg-card mx-auto max-w-md rounded-xl">
         <CardContent className="flex items-center gap-3 p-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
             <FileText className="h-5 w-5 text-primary" />
@@ -171,17 +167,23 @@ Setelah file project-spec.md terunduh, baca seluruh isinya dan ikuti semua persy
       </Card>
 
       {/* Preview */}
-      <div>
-        <h3 className="mb-3 text-sm font-semibold text-foreground">
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">
           Pratinjau File
         </h3>
-        <ScrollArea className="h-[400px] rounded-lg border border-border bg-[#0A0A0A] p-6">
-          <div className="prose prose-invert prose-sm max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-code:text-primary prose-code:bg-primary/10 prose-code:rounded prose-code:px-1.5 prose-code:py-0.5 prose-code:font-mono prose-pre:bg-card prose-pre:border prose-pre:border-border">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {markdownContent}
-            </ReactMarkdown>
-          </div>
-        </ScrollArea>
+        <div className="flex gap-6 items-stretch h-[450px]">
+          {/* TOC Sidebar */}
+          <TocSidebar markdown={markdownContent} containerRef={previewScrollRef} />
+
+          {/* Preview Area */}
+          <ScrollArea ref={previewScrollRef} className="flex-1 rounded-xl border border-border bg-card p-8">
+            <div className="prose prose-invert prose-sm max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-code:text-primary prose-code:bg-primary/10 prose-code:rounded prose-code:px-1.5 prose-code:py-0.5 prose-code:font-mono prose-pre:bg-secondary prose-pre:border prose-pre:border-border">
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdHeadingComponents}>
+                {markdownContent}
+              </ReactMarkdown>
+            </div>
+          </ScrollArea>
+        </div>
       </div>
 
       {/* Navigation */}
@@ -189,7 +191,7 @@ Setelah file project-spec.md terunduh, baca seluruh isinya dan ikuti semua persy
         <Button
           variant="outline"
           onClick={onBack}
-          className="gap-2 border-border text-muted-foreground hover:text-foreground"
+          className="gap-2 border-border text-muted-foreground hover:text-foreground rounded-lg active:scale-[0.98]"
         >
           <ArrowLeft className="h-4 w-4" />
           Kembali ke Daftar Tugas
@@ -197,7 +199,7 @@ Setelah file project-spec.md terunduh, baca seluruh isinya dan ikuti semua persy
         <Button
           onClick={onGoToDashboard}
           variant="outline"
-          className="gap-2 border-border text-foreground hover:bg-muted"
+          className="gap-2 border-border text-foreground hover:bg-muted rounded-lg active:scale-[0.98]"
         >
           Ke Dasbor
           <ExternalLink className="h-4 w-4" />

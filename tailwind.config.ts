@@ -46,8 +46,8 @@ const config: Config = {
         warning: "hsl(var(--warning))",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        mono: ["JetBrains Mono", "monospace"],
+        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "monospace"],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -59,7 +59,6 @@ const config: Config = {
         "fade-in-scale": "fadeInScale 0.3s ease-out forwards",
         "slide-in-right": "slideInRight 0.4s ease-out forwards",
         "slide-in-left": "slideInLeft 0.4s ease-out forwards",
-        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
       },
     },
   },

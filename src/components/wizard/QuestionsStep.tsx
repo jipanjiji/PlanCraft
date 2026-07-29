@@ -1,5 +1,5 @@
 // ============================================================
-// PlanCraft AI — Step 2: Clarifying Questions (Premium UI & Spacious)
+// PlanCraft AI — Step 2: Clarifying Questions (Indonesian)
 // ============================================================
 
 "use client";
@@ -132,7 +132,8 @@ export function QuestionsStep({
           return (
             <Card
               key={index}
-              className={`border-border bg-card/35 hover:border-zinc-800 transition-all duration-300 stagger-${index + 1} animate-fade-in rounded-xl shadow-md overflow-hidden`}
+              className="border-border bg-card/35 hover:border-zinc-700 transition-all duration-200 rounded-xl overflow-hidden stagger-item"
+              style={{ "--stagger": index } as React.CSSProperties}
             >
               <CardContent className="p-6 space-y-5">
                 {/* Question Text */}
@@ -156,16 +157,16 @@ export function QuestionsStep({
                           type="button"
                           onClick={() => handleOptionToggle(index, option)}
                           className={cn(
-                            "group px-5 py-4 text-sm font-medium text-left rounded-xl border transition-all duration-300 flex items-center justify-between gap-4 outline-none select-none active:scale-[0.99]",
+                            "group px-5 py-4 text-sm font-medium text-left rounded-xl border transition-all duration-200 flex items-center justify-between gap-4 outline-none select-none active:scale-[0.98]",
                             isSelected
-                              ? "bg-primary/5 border-primary text-primary shadow-[inset_0_1px_0_rgba(59,130,246,0.1)]"
-                              : "bg-[#0A0A0A]/70 border-border text-muted-foreground hover:border-zinc-600 hover:text-foreground hover:-translate-y-0.5"
+                              ? "bg-primary/5 border-primary text-primary"
+                              : "bg-secondary/50 border-border text-muted-foreground hover:border-zinc-600 hover:text-foreground"
                           )}
                         >
                           <span className="leading-relaxed">{option}</span>
                           <div
                             className={cn(
-                              "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-all duration-300",
+                              "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-all duration-200",
                               isSelected
                                 ? "bg-primary border-primary text-primary-foreground"
                                 : "border-zinc-700 group-hover:border-zinc-500"
@@ -186,7 +187,7 @@ export function QuestionsStep({
                       setShowCustomInput((prev) => ({ ...prev, [index]: !showCustom }));
                     }}
                     className={cn(
-                      "w-full px-5 py-3 text-xs font-semibold rounded-xl border border-dashed transition-all duration-300 flex items-center justify-center gap-2 outline-none select-none active:scale-[0.99]",
+                      "w-full px-5 py-3 text-xs font-semibold rounded-xl border border-dashed transition-all duration-200 flex items-center justify-center gap-2 outline-none select-none active:scale-[0.98]",
                       showCustom
                         ? "border-amber-500 bg-amber-500/10 text-amber-400"
                         : "border-zinc-800 hover:border-amber-500/40 hover:bg-amber-500/5 text-muted-foreground hover:text-amber-400"
@@ -199,7 +200,7 @@ export function QuestionsStep({
 
                 {/* Custom Answer Textarea */}
                 {showCustom && (
-                  <div className="animate-fade-in pt-1">
+                  <div className="pt-1">
                     <Textarea
                       placeholder="Masukkan jawaban spesifik Anda di sini..."
                       value={customAnswers[index] || ""}
@@ -209,7 +210,7 @@ export function QuestionsStep({
                           [index]: e.target.value,
                         }));
                       }}
-                      className="min-h-[90px] resize-none bg-[#0A0A0A]/90 border-border text-foreground placeholder:text-muted-foreground focus:ring-amber-500 rounded-xl leading-relaxed p-4"
+                      className="min-h-[90px] resize-none bg-card border-border text-foreground placeholder:text-muted-foreground focus:ring-amber-500 rounded-xl leading-relaxed p-4"
                     />
                   </div>
                 )}
@@ -224,7 +225,7 @@ export function QuestionsStep({
         <Button
           variant="outline"
           onClick={onBack}
-          className="gap-2 border-border text-muted-foreground hover:text-foreground rounded-lg"
+          className="gap-2 border-border text-muted-foreground hover:text-foreground rounded-lg active:scale-[0.98]"
         >
           <ArrowLeft className="h-4 w-4" />
           Kembali
@@ -233,7 +234,7 @@ export function QuestionsStep({
           onClick={handleSubmit}
           disabled={!allAnswered || isLoading}
           size="lg"
-          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/95 rounded-lg"
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg active:scale-[0.98]"
         >
           {isLoading ? (
             <>

@@ -42,6 +42,11 @@ export async function getProject(projectId: string): Promise<Project | null> {
     id: snap.id,
     createdAt: (data.createdAt as Timestamp)?.toDate?.() ?? new Date(),
     updatedAt: (data.updatedAt as Timestamp)?.toDate?.() ?? new Date(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    prdVersions: data.prdVersions?.map((v: any) => ({
+      ...v,
+      createdAt: (v.createdAt as Timestamp)?.toDate?.() ?? new Date(),
+    })) ?? [],
   } as Project;
 }
 
@@ -59,6 +64,11 @@ export async function getUserProjects(userId: string): Promise<Project[]> {
       id: doc.id,
       createdAt: (data.createdAt as Timestamp)?.toDate?.() ?? new Date(),
       updatedAt: (data.updatedAt as Timestamp)?.toDate?.() ?? new Date(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      prdVersions: data.prdVersions?.map((v: any) => ({
+        ...v,
+        createdAt: (v.createdAt as Timestamp)?.toDate?.() ?? new Date(),
+      })) ?? [],
     } as Project;
   });
 }

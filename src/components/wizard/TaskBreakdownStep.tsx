@@ -1,5 +1,5 @@
 // ============================================================
-// PlanCraft AI — Step 5: Task Breakdown (Indonesian & Premium UI)
+// PlanCraft AI — Step 5: Task Breakdown (Indonesian)
 // ============================================================
 
 "use client";
@@ -84,7 +84,7 @@ export function TaskBreakdownStep({
         <h2 className="text-2xl font-bold text-foreground tracking-tight">
           Daftar Tugas Pengembangan
         </h2>
-        <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
+        <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
           {totalCount} tugas telah dihasilkan di {Object.keys(grouped).length} fase pengembangan.
           Tandai tugas yang sudah atau ingin Anda rencanakan.
         </p>
@@ -113,7 +113,7 @@ export function TaskBreakdownStep({
           const Icon = config.icon;
 
           return (
-            <div key={category} className="animate-fade-in space-y-3">
+            <div key={category} className="space-y-3">
               <div className="flex items-center gap-2">
                 <Icon className={`h-4 w-4 ${config.color}`} />
                 <h3 className="text-sm font-semibold text-foreground">
@@ -131,7 +131,7 @@ export function TaskBreakdownStep({
                 {categoryTasks.map((task) => (
                   <Card
                     key={task.id}
-                    className={`border-border bg-card/40 transition-all duration-200 cursor-pointer hover:bg-card/75 rounded-lg ${
+                    className={`border-border bg-card/40 transition-all duration-200 cursor-pointer hover:bg-card/75 rounded-xl active:scale-[0.98] ${
                       task.completed ? "opacity-50" : ""
                     }`}
                     onClick={() => onToggleTask(task.id)}
@@ -174,7 +174,7 @@ export function TaskBreakdownStep({
         <Button
           variant="outline"
           onClick={onBack}
-          className="gap-2 border-border text-muted-foreground hover:text-foreground rounded-lg"
+          className="gap-2 border-border text-muted-foreground hover:text-foreground rounded-lg active:scale-[0.98]"
         >
           <ArrowLeft className="h-4 w-4" />
           Kembali
@@ -184,7 +184,7 @@ export function TaskBreakdownStep({
             variant="outline"
             onClick={onRegenerate}
             disabled={isLoading}
-            className="gap-2 border-border text-muted-foreground hover:text-foreground rounded-lg"
+            className="gap-2 border-border text-muted-foreground hover:text-foreground rounded-lg active:scale-[0.98]"
           >
             <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
             Buat Ulang
@@ -193,7 +193,7 @@ export function TaskBreakdownStep({
             onClick={onNext}
             disabled={isLoading}
             size="lg"
-            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/95 rounded-lg"
+            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg active:scale-[0.98]"
           >
             Ekspor Spesifikasi
             <ArrowRight className="h-4 w-4" />

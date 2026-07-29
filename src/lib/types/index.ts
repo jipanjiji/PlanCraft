@@ -54,6 +54,14 @@ export type TaskCategory =
   | "testing"
   | "deployment";
 
+export interface PrdVersion {
+  id: string;
+  prdContent: string;
+  createdAt: Date;
+  createdBy: "ai" | "user";
+  label: string;
+}
+
 export interface Project {
   id: string;
   userId: string;
@@ -65,6 +73,8 @@ export interface Project {
   prdContent: string;
   tasks: Task[];
   accessToken?: string;
+  prdVersions?: PrdVersion[];
+  generatedQuestions?: ClarifyingQuestion[];
   createdAt: Date;
   updatedAt: Date;
 }

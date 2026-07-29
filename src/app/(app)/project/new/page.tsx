@@ -4,7 +4,7 @@
 
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useAiStream } from "@/hooks/useAiStream";
@@ -52,6 +52,15 @@ export default function NewProjectPage() {
   >([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
+  // Synchronize step in URL for Step 1
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const stepParam = urlParams.get("step");
+    if (stepParam !== "1") {
+      router.replace(`${window.location.pathname}?step=1`);
+    }
+  }, [router]);
+
   // Helper to save project to Firestore
   const saveProject = useCallback(
     async (updates: Partial<Project>) => {
@@ -64,6 +73,7 @@ export default function NewProjectPage() {
           rawIdea,
           status: "draft" as const,
           clarifyingQuestions: answers,
+          generatedQuestions: questions,
           systemStructure: structure,
           prdContent,
           tasks: tasks as Project["tasks"],
@@ -81,7 +91,7 @@ export default function NewProjectPage() {
         console.error("Failed to save project:", error);
       }
     },
-    [user, projectId, title, rawIdea, answers, structure, prdContent, tasks, accessToken]
+    [user, projectId, title, rawIdea, answers, questions, structure, prdContent, tasks, accessToken]
   );
 
   // --- Step 1: Submit Idea ---
@@ -96,12 +106,16 @@ export default function NewProjectPage() {
         { rawIdea: idea }
       );
       setQuestions(data.questions);
-      setCurrentStep("questions");
-      await saveProject({ rawIdea: idea, title: projectTitle, status: "clarifying" });
+      await saveProject({
+        rawIdea: idea,
+        title: projectTitle,
+        status: "clarifying",
+        generatedQuestions: data.questions,
+      });
+      router.push(`/project/${projectId}?step=2`);
     } catch (error) {
       console.error("Failed to generate questions:", error);
       alert("Gagal menghasilkan pertanyaan. Silakan coba lagi.");
-    } finally {
       setIsLoading(false);
     }
   };

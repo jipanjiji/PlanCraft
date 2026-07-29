@@ -1,5 +1,5 @@
 // ============================================================
-// PlanCraft AI — Step 1: Idea Input (Indonesian & Premium UI)
+// PlanCraft AI — Step 1: Idea Input (Indonesian)
 // ============================================================
 
 "use client";
@@ -49,28 +49,28 @@ export function IdeaInputStep({
         <h2 className="text-2xl font-bold text-foreground tracking-tight">
           Apa yang ingin Anda bangun?
         </h2>
-        <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
+        <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
           Jelaskan ide produk Anda secara detail. Semakin banyak konteks yang Anda berikan, semakin baik kualitas PRD yang dihasilkan.
         </p>
       </div>
 
       {/* Title Input */}
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <label className="text-xs font-medium text-muted-foreground">
           Nama Proyek
         </label>
         <Input
           placeholder="Contoh: FinTrack AI, RecipeHub, CodeForge..."
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="h-11 bg-[#0A0A0A] border-border text-foreground placeholder:text-muted-foreground rounded-lg focus:ring-primary"
+          className="h-11 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-lg focus:ring-primary"
         />
       </div>
 
       {/* Idea Textarea */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <label className="text-xs font-medium text-muted-foreground">
             Detail Ide Produk
           </label>
           <span
@@ -87,7 +87,7 @@ export function IdeaInputStep({
           placeholder="Jelaskan ide produk Anda... Masalah apa yang diselesaikan? Siapa target penggunanya? Apa saja fitur utama yang harus ada?"
           value={idea}
           onChange={(e) => setIdea(e.target.value)}
-          className="min-h-[180px] resize-none bg-[#0A0A0A] border-border text-foreground placeholder:text-muted-foreground rounded-lg focus:ring-primary leading-relaxed"
+          className="min-h-[180px] resize-none bg-card border-border text-foreground placeholder:text-muted-foreground rounded-lg focus:ring-primary leading-relaxed"
           maxLength={5000}
         />
       </div>
@@ -102,7 +102,8 @@ export function IdeaInputStep({
           {EXAMPLE_IDEAS.map((example, i) => (
             <Card
               key={i}
-              className={`cursor-pointer border-border bg-card/40 transition-all duration-300 hover:border-primary/40 hover:bg-card stagger-${i + 1} animate-fade-in rounded-lg shadow-sm`}
+              className="cursor-pointer border-border bg-card/40 transition-all duration-200 hover:border-primary/30 hover:bg-card active:scale-[0.98] rounded-xl stagger-item"
+              style={{ "--stagger": i } as React.CSSProperties}
               onClick={() => {
                 setIdea(example);
                 setTitle("");
@@ -124,7 +125,7 @@ export function IdeaInputStep({
           onClick={handleSubmit}
           disabled={idea.trim().length < 10 || isLoading}
           size="lg"
-          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/95 transition-all rounded-lg"
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 transition-all rounded-lg active:scale-[0.98]"
         >
           {isLoading ? (
             <>

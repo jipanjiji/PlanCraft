@@ -23,6 +23,7 @@ import {
 import { generateId, slugify } from "@/lib/utils/helpers";
 import { Plus, Search, FolderOpen, Sparkles } from "lucide-react";
 import type { Project } from "@/lib/types";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -81,11 +82,19 @@ export default function DashboardPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus proyek ini?")) return;
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleteProjectId, setDeleteProjectId] = useState("");
+
+  const handleDeleteTrigger = (id: string) => {
+    setDeleteProjectId(id);
+    setIsDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteProjectId) return;
     try {
-      await deleteProject(id);
-      setProjects((prev) => prev.filter((p) => p.id !== id));
+      await deleteProject(deleteProjectId);
+      setProjects((prev) => prev.filter((p) => p.id !== deleteProjectId));
     } catch (error) {
       console.error("Failed to delete:", error);
     }
@@ -97,18 +106,18 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl animate-fade-in">
+    <div className="mx-auto max-w-6xl">
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Proyek Saya</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Proyek Saya</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             {projects.length} proyek di ruang kerja Anda
           </p>
         </div>
         <Button
           onClick={() => router.push("/project/new")}
-          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/95 rounded-lg"
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg active:scale-[0.98] transition-all"
         >
           <Plus className="h-4 w-4" />
           Proyek Baru
@@ -123,12 +132,12 @@ export default function DashboardPage() {
             placeholder="Cari proyek..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-10 bg-card border-border pl-10 text-foreground placeholder:text-muted-foreground"
+            className="h-10 bg-card border-border pl-10 text-foreground placeholder:text-muted-foreground rounded-lg"
           />
         </div>
       )}
 
-      {/* Loading Skeletons */}
+      {/* Loading Skeletons - shape-matching per skill 4.5 */}
       {loading && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -156,19 +165,19 @@ export default function DashboardPage() {
 
       {/* Empty State */}
       {!loading && projects.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-in">
-          <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/5">
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-muted">
             <FolderOpen className="h-10 w-10 text-muted-foreground/50" />
           </div>
           <h3 className="text-lg font-semibold text-foreground">
             Belum ada proyek
           </h3>
-          <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+          <p className="mt-2 max-w-sm text-sm text-muted-foreground leading-relaxed">
             Mulai dengan membuat proyek pertama Anda. Jelaskan ide Anda dan biarkan AI membuat PRD lengkap untuk Anda.
           </p>
           <Button
             onClick={() => router.push("/project/new")}
-            className="mt-6 gap-2 bg-primary text-primary-foreground hover:bg-primary/95 rounded-lg"
+            className="mt-6 gap-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg active:scale-[0.98] transition-all"
           >
             <Sparkles className="h-4 w-4" />
             Buat Proyek Pertama Anda
@@ -182,13 +191,14 @@ export default function DashboardPage() {
           {filteredProjects.map((project, i) => (
             <div
               key={project.id}
-              className={`stagger-${Math.min(i + 1, 5)} animate-fade-in`}
+              className="stagger-item"
+              style={{ "--stagger": Math.min(i, 8) } as React.CSSProperties}
             >
               <ProjectCard
                 project={project}
                 onOpen={handleOpen}
                 onDuplicate={handleDuplicate}
-                onDelete={handleDelete}
+                onDelete={handleDeleteTrigger}
                 onDownload={handleDownload}
               />
             </div>
@@ -205,6 +215,17 @@ export default function DashboardPage() {
           </p>
         </div>
       )}
+
+      {/* Confirmations */}
+      <ConfirmDialog
+        isOpen={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        title="Hapus Proyek?"
+        description="Apakah Anda yakin ingin menghapus proyek ini secara permanen? Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Hapus"
+        onConfirm={handleConfirmDelete}
+        variant="destructive"
+      />
     </div>
   );
 }
